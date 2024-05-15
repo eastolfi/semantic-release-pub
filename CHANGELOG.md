@@ -1,3 +1,10 @@
+## [1.1.0](https://github.com/eastolfi/semantic-release-pub/compare/v1.0.0...v1.1.0) (2024-05-15)
+
+
+### Features
+
+* add MSIX version replacement ([e4e8513](https://github.com/eastolfi/semantic-release-pub/commit/e4e85138d2b6ced42468cde863c670df4e1d595b))
+
 ## 1.0.0 (2024-05-15)
 
 

@@ -14,7 +14,7 @@ export const prepare = async (
   pluginConfig: PluginConfig,
   { nextRelease: { version }, logger }: PrepareContext,
 ) => {
-  const { updateBuildNumber } = getConfig(pluginConfig);
+  const { updateBuildNumber, updateMsixVersion } = getConfig(pluginConfig);
 
   const data = getPubspecString();
   const pubspec = getPubspecFromString(data);
@@ -22,8 +22,13 @@ export const prepare = async (
     /[/\-\\^$*+?.()|[\]{}]/g,
     "\\$&",
   );
+  const msixVersionEscaped = pubspec.msix_config?.msix_version.replace(
+    /[/\-\\^$*+?.()|[\]{}]/g,
+    "\\$&",
+  );
 
   let nextVersion = version;
+  let msixNextVersion = version;
   if (updateBuildNumber) {
     const parts = pubspec.version.split("+");
     const buildNumber = parts.length > 1 ? Number(parts[1]) : 0;
@@ -34,13 +39,28 @@ export const prepare = async (
       );
     }
 
+    if (updateMsixVersion && !pubspec.msix_config) {
+      throw new SemanticReleaseError(
+        "updateMsixVersion is true, but no msix_config is provided",
+      );
+    }
+
     nextVersion = `${version}+${buildNumber + 1}`;
+
+    if (updateMsixVersion) {
+      msixNextVersion = `${version}.${buildNumber + 1}`;
+    }
   }
 
-  const newData = data.replace(
-    new RegExp(`version:[ \t]+${pubspecVersionEscaped}`),
-    `version: ${nextVersion}`,
-  );
+  const newData = data
+    .replace(
+      new RegExp(`version:[ \t]+${pubspecVersionEscaped}`),
+      `version: ${nextVersion}`,
+    )
+    .replace(
+      new RegExp(`msix_version:[ \t]+${msixVersionEscaped}`),
+      `msix_version: ${msixNextVersion}`,
+    );
 
   logger.log(`Writing version ${nextVersion} to ${PUBSPEC_PATH}`);
   writeFileSync(PUBSPEC_PATH, newData);

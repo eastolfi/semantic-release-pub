@@ -23,6 +23,7 @@ describe("getConfig", () => {
     cli: "flutter",
     publishPub: false,
     updateBuildNumber: false,
+    updateMsixVersion: false,
   };
 
   test("success", () => {
